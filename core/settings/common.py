@@ -11,6 +11,8 @@ SECRET_KEY = env.str('SECRET_KEY', 'secret_key')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOST', default=['*'])
 
+DEBUG = env.bool('DEBUG', default=True)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,6 +25,8 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework_simplejwt',
     'corsheaders',
+    'user',
+    'webpack_loader',
 ]
 
 MIDDLEWARE = [
@@ -93,6 +97,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
 }
 
 SIMPLE_JWT = {
@@ -103,3 +108,16 @@ SIMPLE_JWT = {
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
 ]
+
+AUTH_USER_MODEL = 'user.User'
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': '',
+        'STATS_FILE': root('frontend', 'webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+    }
+}

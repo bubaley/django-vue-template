@@ -1,11 +1,8 @@
 <template>
     <v-app>
-        <v-app-bar app color="primary" dark/>
-
         <v-content>
             <router-view></router-view>
         </v-content>
-
         <snackbar/>
     </v-app>
 </template>
@@ -19,18 +16,20 @@
             Snackbar
         },
 
-        data: () => ({
-            kek: false,
-        }),
+        data: () => ({}),
         created() {
-            this.$store.dispatch('getUser').then(() => {
-            }).catch(() => {
-                this.$router.push({
-                    name: 'login'
-                }).catch(e => {
-                })
-            })
+
         },
         methods: {}
     };
 </script>
+
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    .v-text-field--outlined fieldset {
+        border: 1px solid !important;
+    }
+</style>

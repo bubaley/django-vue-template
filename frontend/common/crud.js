@@ -15,7 +15,6 @@ export default {
                     .then(response => {
                         commit('setLoading', false)
                         if (response.status === 201) {
-                            commit('setSnackbar', {text: "Успешно создано", color: "success"})
                             resolve(response.data)
                         }
                     })
@@ -42,10 +41,6 @@ export default {
                         if (response.status === 200) {
                             resolve(response.data)
                         } else {
-                            // commit('setSnackbar', {
-                            //     text: response.data.value ? response.data.value : "Не удалось обновить",
-                            //     color: "error"
-                            // })
                             reject()
                         }
                     })
@@ -66,6 +61,7 @@ export default {
                 axios({
                     method: 'delete',
                     url: url + id + '/',
+                    data: data.params
                 })
                     .then((response) => {
                         commit('setLoading', false)
@@ -129,9 +125,10 @@ export default {
 
             let url = data.url
             let id = data.id
-            let value = data.value
+            let body = data.body
+            let params = data.params
             let action = data.action
-            let method = data.method ? data.method : 'post'
+            let method = data.method ||  'post'
 
             url = id ? url + id + '/' : url
             url = action ? url + action + '/' : url
@@ -141,7 +138,8 @@ export default {
                 axios({
                     method: method,
                     url: url,
-                    data: value
+                    data: body,
+                    params: params
                 })
                     .then((response) => {
                         commit('setLoading', false)
@@ -152,7 +150,6 @@ export default {
                         }
                     })
                     .catch((error) => {
-                        commit('setSnackbar', {text: "Не удалось обновить", color: "error"})
                         reject()
                     })
             })
