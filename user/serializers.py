@@ -10,10 +10,17 @@ from djoser.conf import settings
 User = get_user_model()
 
 
-class SimpleUserSerializer(serializers.ModelSerializer):
+class UserSimpleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.User
+        model = User
         fields = ('id', 'username')
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name')
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -29,6 +36,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
             settings.LOGIN_FIELD,
             User._meta.pk.name,
             "password",
+            'first_name',
+            'last_name',
+            'phone'
         )
 
     def validate(self, attrs):
@@ -45,17 +55,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        try:
-            user = self.perform_create(validated_data)
-        except IntegrityError:
-            self.fail("cannot_create_user")
-
-        return user
+        return self.perform_create(validated_data)
 
     def perform_create(self, validated_data):
         with transaction.atomic():
             user = User.objects.create_user(**validated_data)
-            if settings.SEND_ACTIVATION_EMAIL:
-                user.is_active = False
-                user.save(update_fields=["is_active"])
         return user

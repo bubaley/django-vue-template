@@ -11,6 +11,19 @@ SECRET_KEY = env.str('SECRET_KEY', 'secret_key')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOST', default=['*'])
 
+if env.str('SENTRY_DNS', ''):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=env.str('SENTRY_DSN'),
+        integrations=[DjangoIntegration()],
+        environment=env.str('ENVIRONMENT', 'dev'),
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True
+    )
+
 DEBUG = env.bool('DEBUG', default=True)
 
 INSTALLED_APPS = [
@@ -20,7 +33,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
     'rest_framework',
     'djoser',
     'rest_framework_simplejwt',
@@ -86,9 +98,10 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 
 STATIC_URL = '/static/'
+STATIC_PATH = root('static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = root('media')
@@ -98,16 +111,24 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
+    'DEFAULT_PAGINATION_CLASS': 'core.utils.pagination.MainPagination',
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=5),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=14),
 }
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
 ]
+
+DJOSER = {
+    'SERIALIZERS': {
+        'current_user': 'user.serializers.UserSerializer',
+        'user_create': 'user.serializers.UserCreateSerializer',
+    }
+}
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -119,5 +140,20 @@ WEBPACK_LOADER = {
         'POLL_INTERVAL': 0.1,
         'TIMEOUT': None,
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+    }
+}
+
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = '6379'
+BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'app_cache',
+        'TIMEOUT': 604800
     }
 }

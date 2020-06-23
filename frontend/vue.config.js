@@ -5,6 +5,11 @@ module.exports = {
     "transpileDependencies": [
         "vuetify"
     ],
+    pages: {
+        main: {
+            entry: 'src/main/main.js',
+        },
+    },
 
     publicPath: process.env.NODE_ENV === 'production' ? DEPLOYMENT_PATH : 'http://localhost:8080/',
     outputDir: '../static/dist',
@@ -14,6 +19,19 @@ module.exports = {
         headers: {
             'Access-Control-Allow-Origin': '*',
         },
+    },
+    chainWebpack: config => {
+        config.optimization.splitChunks({
+            cacheGroups: {
+                common: {
+                    name: 'chunk-vendor',
+                    minChunks: 1,
+                    priority: -10,
+                    chunks: 'initial',
+                    reuseExistingChunk: true
+                }
+            }
+        })
     },
 
     configureWebpack: {
