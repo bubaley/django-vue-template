@@ -16,7 +16,7 @@ django-webpack-loader==0.7.0
 djangorestframework==3.11.0
 djangorestframework-simplejwt==4.4.0
 djoser==2.0.3
-drf-irelation==0.0.2
+drf-irelation==0.0.4
 idna==2.9
 ipython==7.15.0
 ipython-genutils==0.2.0
