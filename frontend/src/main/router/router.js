@@ -4,7 +4,10 @@ import Router from '../../vendor/router'
 import Register from '../views/auth/Register'
 import Login from '../views/auth/Login'
 import Home from '../views/Home'
-import Welcome from "../views/Welcome";
+import NotFound from '../../components/template/NotFound'
+import About from '../views/About'
+
+import {user} from '../models'
 
 const routes = [
     {
@@ -16,10 +19,11 @@ const routes = [
         },
         children: [
             {
+                name: 'about',
                 path: '',
-                name: 'welcome',
-                component: Welcome
-            }
+                component: About
+            },
+            ...user.getRoutes()
         ]
     },
     {
@@ -32,6 +36,15 @@ const routes = [
         name: 'login',
         component: Login,
     },
+    {
+        path: '/404',
+        name: '404',
+        component: NotFound,
+    },
+    {
+        path: '*',
+        redirect: '/404'
+    }
 ]
 
 export default new Router(routes, store).getRouter()

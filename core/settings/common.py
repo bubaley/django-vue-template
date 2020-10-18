@@ -1,5 +1,6 @@
 import datetime
 import environ
+from loguru import logger
 
 env = environ.Env()
 environ.Env.read_env()
@@ -10,19 +11,6 @@ BASE_DIR = root()
 SECRET_KEY = env.str('SECRET_KEY', 'secret_key')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOST', default=['*'])
-
-if env.str('SENTRY_DNS', ''):
-    import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
-
-    sentry_sdk.init(
-        dsn=env.str('SENTRY_DSN'),
-        integrations=[DjangoIntegration()],
-        environment=env.str('ENVIRONMENT', 'dev'),
-        # If you wish to associate users to errors (assuming you are using
-        # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=True
-    )
 
 DEBUG = env.bool('DEBUG', default=True)
 
@@ -37,8 +25,8 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework_simplejwt',
     'corsheaders',
-    'user',
     'webpack_loader',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -106,6 +94,9 @@ STATIC_PATH = root('static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = root('media')
 
+LOG_PATH = root('log/debug.log')
+logger.add(LOG_PATH, format="{time} {level} {message}")
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -115,8 +106,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=7),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=14),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=3),
+    'ROTATE_REFRESH_TOKENS': True
 }
 
 CORS_ORIGIN_WHITELIST = [
@@ -126,7 +118,7 @@ CORS_ORIGIN_WHITELIST = [
 DJOSER = {
     'SERIALIZERS': {
         'current_user': 'user.serializers.UserSerializer',
-        'user_create': 'user.serializers.UserCreateSerializer',
+        'user_create': 'user.serializers.UserSerializer',
     }
 }
 
@@ -142,7 +134,6 @@ WEBPACK_LOADER = {
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
     }
 }
-
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = '6379'

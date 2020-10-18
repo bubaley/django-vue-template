@@ -10,7 +10,7 @@
 
 <script>
     // read LightBox
-    import { eventBus } from '../../main/main'
+    import { eventBus } from '../../main'
 
     export default {
         name: "ImageList",

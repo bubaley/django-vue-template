@@ -1,25 +1,33 @@
 <template>
-    <v-layout column class="ma-0">
-        <v-app-bar dense app color="primary" dark>
-            <div>template</div>
+    <v-col class="pa-0 fill-height">
+        <drawer></drawer>
+
+        <v-app-bar app clipped-left>
+            <v-btn icon @click="$store.state.drawer = !$store.state.drawer">
+                <v-icon>mdi-menu</v-icon>
+            </v-btn>
+            <router-link :to="{name: 'about'}">
+                <div class="mx-3 black--text font-weight-medium">Приложение</div>
+            </router-link>
             <v-spacer></v-spacer>
             <div class="mr-3">{{$store.getters.currentUser.username}}</div>
-            <v-btn @click="logout" icon><v-icon size="20">mdi-exit-to-app</v-icon></v-btn>
+            <v-btn @click="logout" icon>
+                <v-icon size="20">mdi-exit-to-app</v-icon>
+            </v-btn>
         </v-app-bar>
         <router-view></router-view>
-    </v-layout>
+    </v-col>
 </template>
 
 <script>
+    import Drawer from '../components/Drawer'
 
     export default {
         name: 'Home',
         components: {
-
+            Drawer
         },
-        data: () => ({
-
-        }),
+        data: () => ({}),
         methods: {
             logout() {
                 this.$router.push({name: 'login'})
@@ -27,11 +35,7 @@
 
             }
         },
-        computed: {
-
-        },
-        watch: {
-
-        }
+        computed: {},
+        watch: {}
     }
 </script>

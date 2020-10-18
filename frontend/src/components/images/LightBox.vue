@@ -13,7 +13,7 @@
     // this component work on eventBus events and with component ImageList
     // add ImageList in your app and use events to show images
 
-    import { eventBus } from '../../main/main'
+    import { eventBus } from '../../main'
     import CoolLightBox from 'vue-cool-lightbox'
     import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 

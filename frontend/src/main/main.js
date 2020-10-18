@@ -3,21 +3,16 @@ import App from "./App.vue"
 import router from "./router/router"
 import store from "./store/store"
 import vuetify from "../plugins/vuetify"
-
-
-// uncomment if you want use leaflet and install this packages
-//  leaflet
-//  leaflet.markercluster
-//
-// import "leaflet/dist/leaflet.css"
-// const L = require("leaflet")
-// const market_cluster = require("leaflet.markercluster")
+import {initDefaultComponents, initModels} from '../vendor/initApp'
 
 require('../bootstrap')
 
+initDefaultComponents(Vue)
+initModels(Vue, store, require('./models'))
+
 Vue.config.productionTip = false
 
-export const eventBus = new Vue()
+Vue.prototype.$eventBus = new Vue()
 
 new Vue({
     router,

@@ -26,31 +26,19 @@ export default class Router {
         return new Promise(async (resolve, reject) => {
             if (to.matched[0].meta.auth)
                 if (!this.store.getters.currentUser) {
-                    await this.store.dispatch('getUser').catch(() => {
+                    await this.store.dispatch('me').catch(() => {
                         reject()
                     })
                 }
             for (let value of to.matched) {
-                if (value.meta.url) {
-                    let param = value.meta.param
-                    if (!param) {
-                        let pathSplit = value.path.split(':')
-                        if (pathSplit.length > 0)
-                            param = pathSplit[pathSplit.length - 1]
+                if (value.meta.single) {
+                    const param = value.meta.param
+                    const id = to.params[param]
+                    if (id === 'new') {
+                        value.meta.instance.setItemFromDefault()
+                    } else {
+                        await value.meta.instance.loadItem(id)
                     }
-                    if (param) {
-                        let item = this.store.getters.getItem(value.meta.item)
-                        let id = parseInt(to.params[param])
-                        if (!id)
-                            this.store.dispatch('setItemFromDefault', value.meta.item)
-                        else if (!item || item.id !== id)
-                            await this.store.dispatch('loadItem', {
-                                url: value.meta.url,
-                                item: value.meta.item,
-                                id: id,
-                            })
-                    } else
-                        this.store.dispatch('setItemFromDefault', value.meta.item)
                 }
             }
             resolve()

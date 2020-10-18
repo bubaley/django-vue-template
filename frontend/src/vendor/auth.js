@@ -13,14 +13,59 @@ export default {
         }
     },
     actions: {
+        me({commit, dispatch}, needRefresh = true) {
+            return new Promise((resolve, reject) => {
+                let access = localStorage.getItem('access')
+                if (access && access !== 'undefined') {
+                    axios.defaults.headers.common = {Authorization: 'Bearer ' + access}
+                    axios.get('/users/me/')
+                        .then(response => {
+                            commit('setUser', response.data)
+                            resolve(response.data)
+                        })
+                        .catch((error) => {
+                            if (needRefresh) {
+                                dispatch('refresh').then(() => {
+                                    dispatch('me', false).then(data => {
+                                        resolve(data)
+                                    }).catch(() => {
+                                        reject()
+                                    })
+                                }).catch(() => {
+                                    reject()
+                                })
+                            } else {
+                                reject()
+                            }
+                        })
+                } else {
+                    if (needRefresh)
+                        dispatch('refresh').then(() => {
+                            dispatch('me', false).then(data => {
+                                resolve(data)
+                            }).catch(() => {
+                                reject()
+                            })
+                        }).catch(() => {
+                            dispatch('logout').then(() => {
+                                reject()
+                            })
+                        })
+                    else {
+                        dispatch('logout')
+                    }
+                }
+            })
+        },
         login({dispatch}, data) {
-            let url = data.url ? data.url : '/auth/jwt/create/';
+            let url = data.url ? data.url : '/token/';
             let credentials = data.credentials;
 
             return new Promise((resolve, reject) => {
                 axios.post(url, credentials).then(response => {
-                    localStorage.setItem('token', response.data.access)
-                    dispatch('getUser').then((user) => {
+                    localStorage.setItem('access', response.data.access)
+                    localStorage.setItem('refresh', response.data.refresh)
+                    dispatch('me', false).then((user) => {
                         resolve({
                             user: user,
                             tokens: response.data
@@ -32,14 +77,11 @@ export default {
             })
         },
         register({commit, dispatch}, data) {
-            let url = data.url ? data.url : '/api/v1/users/';
-            let credentials = data.credentials;
-
             return new Promise((resolve, reject) => {
-                axios.post(url, credentials).then(response => {
+                axios.post('/users/', data).then(response => {
                     commit('setUser', response.data)
                     dispatch('login', {
-                        credentials: credentials
+                        credentials: data
                     }).then(tokens => {
                         resolve({
                             user: response.data,
@@ -51,35 +93,29 @@ export default {
                 })
             })
         },
-        getUser({commit, dispatch}, url = '/api/v1/users/me/') {
+        refresh() {
+            let refresh = localStorage.getItem('refresh')
             return new Promise((resolve, reject) => {
-                let token = localStorage.getItem('token')
-                if (token) {
-                    axios.defaults.headers.common = {Authorization: 'Bearer ' + token}
-                    axios.get(url)
-                        .then(response => {
-                            commit('setUser', response.data)
-                            resolve(response.data)
-                        })
-                        .catch((error) => {
-                            dispatch('logout').then(() => {
-                                reject()
-                            })
-
-                        })
-                } else
-                    dispatch('logout').then(() => {
-                        reject()
+                if (refresh && refresh !== 'undefined') {
+                    axios.post('/token/refresh/', {
+                        refresh: refresh
+                    }).then(response => {
+                        localStorage.setItem('access', response.data.access)
+                        localStorage.setItem('refresh', response.data.refresh)
+                        resolve()
+                    }).catch(error => {
+                        reject(error.response)
                     })
-
-
+                } else {
+                    reject()
+                }
             })
         },
-
         logout({commit}) {
             return new Promise((resolve, reject) => {
                 axios.defaults.headers.common = {Authorization: null}
-                localStorage.removeItem('token')
+                localStorage.removeItem('access')
+                localStorage.removeItem('refresh')
                 commit('setUser', null)
                 resolve()
             })

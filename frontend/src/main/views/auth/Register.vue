@@ -80,15 +80,13 @@
             register() {
                 this.loading = true
                 this.$store.dispatch('register', {
-                    credentials: {
-                        username: this.username,
-                        password: this.password,
-                        email: this.email
-                    }
+                    username: this.username,
+                    password: this.password,
+                    email: this.email
                 }).then((response) => {
                     this.loading = false
                     this.$router.push({
-                        name: 'welcome'
+                        name: 'home'
                     })
                     this.errors = []
                 }).catch(e => {

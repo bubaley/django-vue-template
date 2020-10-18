@@ -8,7 +8,7 @@
 </template>
 
 <script>
-    import Snackbar from "./components/Snackbar";
+    import Snackbar from "../components/template/Snackbar";
 
     export default {
         name: 'App',
@@ -27,9 +27,5 @@
 <style>
     a {
         text-decoration: none;
-    }
-
-    .v-text-field--outlined fieldset {
-        border: 1px solid !important;
     }
 </style>
